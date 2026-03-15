@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BluePrint Website Workflow Planner</title>
+
+<style>
+
+/* -------- RESPONSIVE PREVIEW CONTROLS -------- */
+
+.previewControls{
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+#previewSize{
+    margin-left:auto;
+}
+
+.previewBtn{
+  padding:6px 12px;
+  font-size:12px;
+  border-radius:6px;
+  border:1px solid #cfd6e3;
+  background:white;
+  cursor:pointer;
+  font-weight:600;
+  color:#010144;
+  transition:background 0.2s ease, border 0.2s ease;
+}
+
+.previewBtn:hover{
+  background:#eef2f9;
+  border-color:#010144;
+}
+
+
+#previewSize{
+  font-size:12px;
+  color:#333;
+  background:#eef2f9;
+  border:1px solid #d6dbe6;
+  padding:6px 10px;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  font-weight:600;
+}
+
+
+/* make preview resizable */
+
+#layoutPreviewWrapper{
+  background:white;
+  border-radius:12px;
+  padding:18px;
+  scrollbar-gutter: stable;
+
+  box-shadow:0 4px 18px rgba(0,0,0,0.08);
+
+  resize:both;
+  overflow:hidden;
+  position:relative;
+  
+
+  display: flex;
+  flex-direction:column;
+
+  min-width:320px;
+  min-height:420px;
+
+  width:calc(100% - 30px);      /* ← ADD THIS */
+  max-width:calc(100% - 30px);  /* already there */
+}
+
+
+    
+
+/* -------- GLOBAL -------- */
+
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  margin:0;
+  background:#f5f6f8;
+  color:#222;
+}
+
+
+h1{
+  margin-bottom:24px;
+  font-size:30px;
+  font-weight:700;
+  color:#010144;
+}
+
+h2{
+  margin-bottom:12px;
+  font-size:20px;
+  font-weight:600;
+}
+
+/* -------- TOP BAR -------- */
+
+.topBar{
+  position:sticky;
+  top:0;
+  background:#eef2f9;
+  padding:14px 30px;
+  border-bottom:1px solid #d9dfeb;
+  z-index:100;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.topBarLeft{
+  display:flex;
+  flex-direction:column;
+}
+
+.topBarRight{
+  font-size:12px;
+  color:#555;
+  font-weight:600;
+}
+
+
+.topBarTitle{
+  font-size:22px;
+  font-weight:700;
+  color:#010144;
+}
+
+.topBarSubtitle{
+  font-size:13px;
+  color:#555;
+  margin-top:2px;
+}
+
+
+/* -------- LAYOUT -------- */
+
+#appContainer{
+  padding:30px;
+  display:flex;
+  gap:28px;
+  align-items:flex-start;
+}
+
+#resultsSection{
+  scroll-margin-top:80px;
+}
+
+#leftPanel{
+  width:55%;
+  min-width:0;
+}
+
+#rightPanel{
+  width:45%;
+  min-width:0;
+  position:sticky;
+  top:110px;
+}
+
+
+#rightPanel h2{
+  margin-top:6px;
+}
+
+/* -------- INPUTS -------- */
+
+.projectInputs{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:14px;
+  margin-top:12px;
+}
+
+.inputGroup{
+  display:flex;
+  flex-direction:column;
+}
+
+label{
+  font-weight:600;
+  display:block;
+  margin-top:14px;
+  font-size:14px;
+}
+
+textarea,input{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  box-sizing:border-box;
+  border:1px solid #d4d4d4;
+  border-radius:8px;
+  background:white;
+  font-size:14px;
+}
+
+textarea{
+  resize:none;
+  white-space:pre-wrap;
+  overflow-wrap:break-word;
+  word-break:break-word;
+  line-height:1.4;
+}
+
+textarea:focus,input:focus{
+  outline:none;
+  border-color:#010144;
+  box-shadow:0 0 0 2px rgba(1,1,68,0.1);
+}
+
+/* -------- BUTTON -------- */
+
+button{
+  margin-top:20px;
+  padding:12px 18px;
+  background:#010144;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  transition:background 0.2s ease, transform 0.15s ease;
+}
+
+button:hover{
+  background:#0b0b88;
+  transform:translateY(-1px);
+}
+
+/* -------- CARD PANELS -------- */
+
+.style-box{
+  margin-top:22px;
+  padding:18px;
+  background:#fafbfd;
+  border-left:4px solid #010144;
+  border-radius:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  font-size:14px;
+}
+
+/* -------- TIMELINE -------- */
+
+#plannerContainer{
+  margin-top:24px;
+  overflow-x:auto;
+  overflow-y:scroll;
+  padding-bottom:12px;
+}
+
+.timeline-header{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:220px;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.timeline-cell{
+  background:#e9edf5;
+  padding:12px;
+  text-align:center;
+  font-weight:600;
+  border-radius:8px;
+  font-size:13px;
+}
+
+/* -------- SWIMLANES -------- */
+
+.swimlane{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:220px;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.person{
+  font-weight:bold;
+  padding:12px;
+  text-align:center;
+  color:white;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:90px;
+  font-size:14px;
+  letter-spacing:0.4px;
+}
+
+/* -------- TASK CARDS -------- */
+
+.task{
+  padding:14px;
+  border-radius:8px;
+  color:white;
+  font-size:13px;
+  line-height:1.5;
+  min-height:90px;
+  display:flex;
+  align-items:flex-start;
+  box-shadow:0 3px 6px rgba(0,0,0,0.15);
+  white-space:pre-wrap;
+  transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.task:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* -------- DAILY SUMMARY -------- */
+
+.daily-summary{
+  margin-top:12px;
+  padding:14px;
+  background:#fff9e6;
+  border-left:5px solid #ffc107;
+  border-radius:8px;
+  font-size:14px;
+}
+
+
+#layoutPreview{
+  flex: 1;
+  width:100%;
+  height:calc(100%-0px);
+  min-height:400px;
+  background:#f3f5f8;
+  border-radius:10px;
+  position:relative;
+  overflow-y:auto;
+  overflow-x:hidden;
+  border:1px solid #d4d4d4;
+}
+
+.layoutBlock{
+  position:absolute;
+  background:#8a8a8a;
+  border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+
+.layoutBlock.light{
+  background:#a4a4a4;
+}
+
+.layoutBlock.dark{
+  background:#727272;
+}
+
+.layoutHint{
+  color:#666;
+  font-size:13px;
+  margin-top:10px;
+}
+
+#layoutOverflowWarning{
+  display:none;
+  margin-top:10px;
+  padding:10px;
+  border:2px solid rgba(200,0,0,0.9);
+  background:rgba(255,0,0,0.12);
+  color:#8b0000;
+  font-size:13px;
+  border-radius:6px;
+  font-weight:600;
+}
+
+/* -------- LOADING -------- */
+
+#loadingOverlay{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(255,255,255,0.9);
+  z-index:999;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+
+#loadingBarContainer{
+  width:320px;
+  height:12px;
+  background:#ddd;
+  border-radius:6px;
+  overflow:hidden;
+  margin-top:10px;
+}
+
+#loadingBar{
+  width:0%;
+  height:100%;
+  background:#010144;
+  transition:width 0.4s ease;
+}
+
+/* -------- RESPONSIVE -------- */
+
+@media(max-width:1100px){
+
+  #appContainer{
+    flex-direction:column;
+  }
+
+  #leftPanel,#rightPanel{
+    width:100%;
+  }
+
+  #rightPanel{
+    position:static;
+  }
+
+  #layoutPreview{
+    height:620px;
+  }
+
+}
+
+@media(max-width:700px){
+  .projectInputs{
+    grid-template-columns:1fr;
+  }
+}
+
+</style>
+
+
+<script>
+
+let loadingDotsInterval = null
+let loadingMessage = ""
+
+
+const personColors=[
+  "#FF5733","#33A1FF","#28A745","#FFC300","#C70039",
+  "#8E44AD","#FF6F61","#3498DB","#E67E22","#2ECC71"
+]
+
+let BluePrintStyleProfile=null
+
+function showLoading(message){
+  document.getElementById("loadingOverlay").style.display="flex"
+
+  loadingMessage = message
+
+  const textEl = document.getElementById("loadingText")
+  textEl.textContent = message
+
+  let dots = 0
+
+  loadingDotsInterval = setInterval(()=>{
+    dots = (dots + 1) % 4
+    textEl.textContent = loadingMessage + ".".repeat(dots)
+  }, 500)
+}
+
+
+
+function updateLoading(progress,message){
+  document.getElementById("loadingBar").style.width = progress + "%"
+
+  if(message){
+    loadingMessage = message
+  }
+}
+
+
+function hideLoading(){
+  document.getElementById("loadingOverlay").style.display="none"
+  document.getElementById("loadingBar").style.width="0%"
+
+  if(loadingDotsInterval){
+    clearInterval(loadingDotsInterval)
+    loadingDotsInterval = null
+  }
+}
+
+
+function formatDateDMY(date){
+  return date.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})
+}
+
+function renderEmptyLayoutPreview(){
+  document.getElementById("layoutPreview").innerHTML=""
+}
+
+/* -------------------------
+WIREFRAME GENERATOR
+--------------------------*/
+
+function generateLayoutPreview(layout){
+
+  const preview=document.getElementById("layoutPreview")
+  preview.innerHTML=""
+
+  if(!Array.isArray(layout)||layout.length===0)return
+
+  function block(x,y,w,h,cls="",label=""){
+    const el=document.createElement("div")
+
+    el.className=`layoutBlock ${cls}`.trim()
+
+    el.style.left=x+"%"
+    el.style.top=y+"%"
+    el.style.width=w+"%"
+    el.style.height=h+"%"
+
+    el.style.display="flex"
+    el.style.alignItems="center"
+    el.style.justifyContent="center"
+    el.style.fontWeight="bold"
+    el.style.fontSize="12px"
+    el.style.color="#fff"
+    el.style.textTransform="uppercase"
+    el.style.letterSpacing="1px"
+
+    el.textContent=label
+
+    preview.appendChild(el)
+  }
+
+  const hasFooter=layout.some(section=>section && section.type==="footer")
+  const nonFooterSections=layout.filter(section=>section && section.type!=="footer")
+
+  const footerHeight=8
+  const topStart=2
+  const usableHeight=hasFooter ? 88 : 96
+  const sectionHeight=nonFooterSections.length>0 ? usableHeight/nonFooterSections.length : usableHeight
+
+  let y=topStart
+
+  nonFooterSections.forEach(section=>{
+
+    if(!section || !section.type) return
+
+    if(section.type==="header"){
+      block(0,y,100,Math.max(6,sectionHeight*0.55),"dark","HEADER")
+    }
+
+    else if(section.type==="hero"){
+      block(4,y,92,Math.max(10,sectionHeight*0.85),"mid","HERO")
+    }
+
+    else if(section.type==="banner"){
+      block(5,y,90,Math.max(8,sectionHeight*0.55),"dark","BANNER")
+    }
+
+    else if(section.type==="text"){
+
+    const rows = section.rows || 1
+    const cols = section.columns || 1
+
+    const gap = 2
+    const totalWidth = 88
+    const totalHeight = Math.max(10, sectionHeight * 0.7)
+
+    const cellWidth = (totalWidth - ((cols - 1) * gap)) / cols
+    const cellHeight = (totalHeight - ((rows - 1) * gap)) / rows
+
+    for(let r = 0; r < rows; r++){
+        for(let c = 0; c < cols; c++){
+
+        const x = 6 + (c * (cellWidth + gap))
+        const yOffset = y + 2 + (r * (cellHeight + gap))
+
+        block(
+            x,
+            yOffset,
+            cellWidth,
+            cellHeight,
+            "light",
+            "TEXT"
+        )
+
+        }
+    }
+
+    }
+
+
+
+    else if(section.type==="cards"){
+
+      const cols=Math.min(Math.max(section.columns||3,1),4)
+
+      const gap=2
+      const totalWidth=90
+      const cardWidth=(totalWidth-((cols-1)*gap))/cols
+      const cardHeight=Math.max(10,sectionHeight*0.7)
+
+      for(let i=0;i<cols;i++){
+        const x=5+(i*(cardWidth+gap))
+        block(x,y+1,cardWidth,cardHeight,i%2?"light":"mid","CARD")
+      }
+    }
+
+    else if(section.type==="stats"){
+      const statHeight=Math.max(7,sectionHeight*0.45)
+
+      block(8,y+2,18,statHeight,"dark","STAT")
+      block(32,y+2,18,statHeight,"dark","STAT")
+      block(56,y+2,18,statHeight,"dark","STAT")
+      block(80,y+2,12,statHeight,"dark","STAT")
+    }
+
+    else if(section.type==="timeline"){
+      block(6,y+2,88,Math.max(10,sectionHeight*0.7),"light","TIMELINE")
+    }
+
+    y+=sectionHeight
+  })
+
+  if(hasFooter){
+    block(0,92,100,footerHeight,"dark","FOOTER")
+  }
+}
+
+
+/* -------------------------
+API CALLS
+--------------------------*/
+
+async function analyzeBluePrintStyle(){
+
+  updateLoading(20,"Scanning websites")
+
+  const res=await fetch("/api/blueprint-style")
+  const data=await res.json()
+
+  BluePrintStyleProfile=data.summary
+
+  document.getElementById("styleSummary").innerHTML=
+  `<b>Consistent website style detected</b><br><br>
+
+  <b>Total URLs analysed:</b> ${data.summary.scannedPages}<br>
+  <b>Valid pages found:</b> ${data.summary.validPages}<br><br>
+
+  <b>Colours:</b> ${(BluePrintStyleProfile.colors && BluePrintStyleProfile.colors.length ? BluePrintStyleProfile.colors.join(", ") : "None detected")}<br>
+  <b>Fonts:</b> ${(BluePrintStyleProfile.fonts && BluePrintStyleProfile.fonts.length ? BluePrintStyleProfile.fonts.join(", ") : "None detected")}<br><br>
+
+  <b>General style characteristics:</b>
+  <ul>
+  ${(BluePrintStyleProfile.generalStyle || []).map(s => `<li>${s}</li>`).join("")}
+  </ul>`
+}
+
+async function generateAITasks(goal,roles,timeframe,currentSite){
+
+  updateLoading(60,"Generating AI workflow")
+
+  const res=await fetch("/api/generateTasks",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      goal,
+      roles,
+      days:timeframe,
+      style:BluePrintStyleProfile,
+      currentSite
+    })
+  })
+
+  return await res.json()
+}
+
+/* -------------------------
+MAIN GENERATOR
+--------------------------*/
+
+async function generatePlan(){
+
+  document.getElementById("layoutOverflowWarning").style.display = "none"
+
+  showLoading("Preparing analysis")
+  
+  document.getElementById("resultsSection").style.display = "block";
+
+  updateLoading(10)
+
+  if(!BluePrintStyleProfile){
+    await analyzeBluePrintStyle()
+  }
+
+  const goal=document.getElementById("goals").value.trim()
+
+  const startDateInput=
+    document.getElementById("startdate").value ||
+    new Date().toISOString().split("T")[0]
+
+  const timeframe=parseInt(document.getElementById("timeframe").value,10)
+  const peopleCount=parseInt(document.getElementById("people").value,10)
+  const currentSite=document.getElementById("currentSite").value
+
+  const outputDiv=document.getElementById("output")
+  outputDiv.innerHTML=""
+
+  const roleList=[
+    "UI Designer",
+    "Frontend Developer",
+    "Content Strategist",
+    "UX Designer",
+    "QA Tester",
+    "SEO Specialist",
+    "Accessibility Specialist",
+    "Performance Optimisation Engineer"
+  ]
+
+  const roles=Array.from(
+    {length:peopleCount},
+    (_,i)=>roleList[i]||"Web Team Member"
+  )
+
+  const labeledRoles=roles.map((r,i)=>`Person ${i+1} – ${r}`)
+
+  const aiData=await generateAITasks(goal,roles,timeframe,currentSite)
+
+  updateLoading(85,"Rendering AI layout preview...")
+
+  renderEmptyLayoutPreview()
+
+let layout = Array.isArray(aiData.layout) && aiData.layout.length
+  ? aiData.layout
+  : [
+      {type:"header"},
+      {type:"hero"},
+      {type:"cards",columns:3},
+      {type:"footer"}
+    ]
+
+const warning = document.getElementById("layoutOverflowWarning")
+warning.style.display = "none"
+
+if(layout.length > 12){
+  layout = layout.slice(0,12)
+  warning.style.display = "block"
+}
+
+generateLayoutPreview(layout)
+
+  if(aiData.review && aiData.review.length){
+    document.getElementById("aiReview").innerHTML=
+    `<b>Your current website analysis + improvements</b><ul>
+    ${aiData.review.map(r=>`<li>${r}</li>`).join("")}
+    </ul>`
+  }else{
+    document.getElementById("aiReview").innerHTML=
+    `<b>Your current website analysis + improvements</b><br>No review notes returned.`
+  }
+
+  updateLoading(92,"Building workflow timeline...")
+
+  const tasks=Array.isArray(aiData.tasks) ? aiData.tasks : []
+
+  const plannerContainer=document.createElement("div")
+  plannerContainer.id="plannerContainer"
+
+  const timelineHeader=document.createElement("div")
+  timelineHeader.className="timeline-header"
+
+  const blank=document.createElement("div")
+  blank.className="timeline-cell"
+  blank.style.background="transparent"
+  timelineHeader.appendChild(blank)
+
+  for(let day=0;day<timeframe;day++){
+    const date=new Date(startDateInput)
+    date.setDate(date.getDate()+day)
+
+    const headerCell=document.createElement("div")
+    headerCell.className="timeline-cell"
+    headerCell.textContent=formatDateDMY(date)
+
+    timelineHeader.appendChild(headerCell)
+  }
+
+  plannerContainer.appendChild(timelineHeader)
+
+  const swimlanes={}
+
+  labeledRoles.forEach(person=>{
+    swimlanes[person]=Array(timeframe).fill("")
+  })
+
+  tasks.forEach(t=>{
+    if(swimlanes[t.person] && t.day>=1 && t.day<=timeframe){
+      swimlanes[t.person][t.day-1]=t.task
+    }
+  })
+
+  labeledRoles.forEach((person,idx)=>{
+    const lane=document.createElement("div")
+    lane.className="swimlane"
+
+    const personLabel=document.createElement("div")
+    personLabel.className="person"
+    personLabel.textContent=person
+    personLabel.style.backgroundColor=personColors[idx%personColors.length]
+
+    lane.appendChild(personLabel)
+
+    swimlanes[person].forEach(task=>{
+      const taskDiv=document.createElement("div")
+      taskDiv.className="task"
+
+      if(!task){
+        taskDiv.textContent="Available for collaboration."
+        taskDiv.style.background="#999"
+        taskDiv.style.opacity="0.6"
+      }else{
+        taskDiv.textContent=task
+        taskDiv.style.backgroundColor=personColors[idx%personColors.length]
+      }
+
+      lane.appendChild(taskDiv)
+    })
+
+    plannerContainer.appendChild(lane)
+  })
+
+  outputDiv.appendChild(plannerContainer)
+
+  for(let day=0;day<timeframe;day++){
+    const date=new Date(startDateInput)
+    date.setDate(date.getDate()+day)
+
+    const summaryDiv=document.createElement("div")
+    summaryDiv.className="daily-summary"
+
+    const dailyTasks=[]
+
+    labeledRoles.forEach(person=>{
+      if(swimlanes[person][day]){
+        dailyTasks.push(swimlanes[person][day])
+      }
+    })
+
+    const shortSummary=dailyTasks
+      .slice(0,3)
+      .map(t=>t.split(".")[0])
+      .join(". ")
+
+    summaryDiv.innerHTML=`<b>Summary for ${formatDateDMY(date)}</b><br>
+    To do: ${shortSummary || "General development work."}.`
+
+    outputDiv.appendChild(summaryDiv)
+  }
+
+  updateLoading(100,"Complete")
+
+  document.getElementById("resultsSection").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+  setTimeout(hideLoading,600)
+}
+
+/* -------------------------
+RESPONSIVE PREVIEW
+--------------------------*/
+
+function setPreviewSize(w,h){
+  const wrapper=document.getElementById("layoutPreviewWrapper")
+
+  wrapper.style.width=w+"px"
+  wrapper.style.height=h+"px"
+
+  updatePreviewSize()
+}
+
+function updatePreviewSize(){
+  const wrapper=document.getElementById("layoutPreviewWrapper")
+  const rect=wrapper.getBoundingClientRect()
+
+  const label=document.getElementById("previewSize")
+  if(label){
+    label.textContent=`Preview: ${Math.round(rect.width)} × ${Math.round(rect.height)}`
+  }
+}
+
+window.addEventListener("resize",updatePreviewSize)
+
+window.addEventListener("DOMContentLoaded",()=>{
+  renderEmptyLayoutPreview()
+
+  const wrapper=document.getElementById("layoutPreviewWrapper")
+
+  const observer=new ResizeObserver(()=>{
+    updatePreviewSize()
+  })
+
+  observer.observe(wrapper)
+
+  updatePreviewSize()
+})
+
+
+window.addEventListener("DOMContentLoaded",()=>{
+  renderEmptyLayoutPreview()
+})
+
+</script>
+
+</head>
+
+<body>
+
+<div class="topBar">
+
+  <div class="topBarLeft">
+    <div class="topBarTitle">BluePrinter Website Workflow Planner</div>
+    <div class="topBarSubtitle">
+      AI-assisted planning for corporate website design, layout and development workflows
+    </div>
+  </div>
+
+  <div class="topBarRight">
+    Created by Angela B, Hannah C, Lennon R (2026)
+  </div>
+
+</div>
+
+
+<div id="loadingOverlay">
+  <h2>Generating workflow...</h2>
+
+  <div id="loadingBarContainer">
+    <div id="loadingBar"></div>
+  </div>
+
+  <p id="loadingText">Starting analysis...</p>
+</div>
+
+<div id="appContainer">
+
+  <div id="leftPanel">
+
+    <label>Describe the webpage you want:</label>
+    <textarea id="goals" rows="3"></textarea>
+
+    <label>Paste current website HTML (optional):</label>
+    <textarea id="currentSite" rows="6" placeholder="Paste your current HTML here if you want the AI to review it and suggest improvements..."></textarea>
+
+    <div class="projectInputs">
+
+      <div class="inputGroup">
+        <label>Project start date:</label>
+        <input type="date" id="startdate">
+      </div>
+
+      <div class="inputGroup">
+        <label>Number of days:</label>
+        <input type="number" id="timeframe" min="1" value="5">
+      </div>
+
+      <div class="inputGroup">
+        <label>Number of people:</label>
+        <input type="number" id="people" min="1" value="4">
+      </div>
+
+    </div>
+
+    <button onclick="generatePlan()">Generate Workflow</button>
+
+    <div id="resultsSection" style="display:none;">
+
+        <h2>Generated Workflow</h2>
+
+        <div id="styleSummary" class="style-box">
+        <b>Website style analysis</b><br>
+        Press <b>Generate Workflow</b> to analyse websites whose hyperlinks are stored in the hatabase and extract colours, fonts, and layout patterns.
+        </div>
+
+        <div id="aiReview" class="style-box">
+        <b>Your current website analysis + improvements</b><br>
+        If you paste a website above, the AI will review it and suggest improvements here.
+        </div>
+
+        <div id="output"></div>
+    
+    </div>
+
+  </div>
+
+  <div id="rightPanel">
+
+    <h2>Example Layout</h2>
+
+    <div class="layoutHint">
+    This panel starts as a blank wireframe area. After generation, it fills with AI-recommended layout blocks for sections such as the header, hero, cards, content areas, and footer.
+    Note: This tool identifies layout structure but does not provide size recommendations for individual elements.
+    </div>
+
+    <div class="previewControls">
+    <button class="previewBtn" onclick="setPreviewSize(1200,760)">Desktop</button>
+    <button class="previewBtn" onclick="setPreviewSize(768,700)">Tablet</button>
+    <button class="previewBtn" onclick="setPreviewSize(375,650)">Mobile</button>
+
+    <div id="previewSize">Preview: —</div>
+    </div>
+
+    <div id="layoutPreviewWrapper">
+    <div id="layoutPreview"></div>
+    <div class="resizeCorner"></div>
+    </div>
+
+    <div id="layoutOverflowWarning">
+    Preview truncated: large layouts are partially displayed.
+    </div>
+
+
+    </div>
+
+    </div>
+
+    </body>
+    </html>
