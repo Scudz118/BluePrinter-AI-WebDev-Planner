@@ -1,3 +1,5 @@
+Developed as part of a team for the CXI + AI Design-to-Delivery Accelerator Challenge.
+
 # BluePrinter
 ### AI-Assisted Web Development Planning Tool
 
