@@ -137,11 +137,15 @@ npm install
 OPENAI_API_KEY=your_api_key_here
 
 
-### 3. Start the server
+### 3. Initialise the database
+node init-db.js
+
+
+### 4. Start the server
 node server.js
 
 
-### 4. Open the application
+### 5. Open the application
 http://localhost:3000
 
 
